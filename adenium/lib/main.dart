@@ -1,6 +1,9 @@
 import 'package:adenium/data.dart';
 import 'package:flutter/material.dart';
 
+///This is how a single [Plant] is stored in the entire program.
+///It have its name as [plantname], its details regarding 
+///it as [plantdetails] and the date as [plantdate]
 class Plant {
   Plant(
       {required this.plantname,
@@ -36,7 +39,7 @@ class Adenium extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       title: "Adenium plant organiser",
-      debugShowCheckedModeBanner: false, 
+      debugShowCheckedModeBanner: false,
       home: PlantOrg(),
     );
   }
@@ -49,14 +52,15 @@ class PlantOrg extends StatefulWidget {
   State<PlantOrg> createState() => _PlantOrgState();
 }
 
+///The [_PlantOrgState] have the [initState] function where the program tries 
+///to read a text file and populate the data or else create a new text file for 
+///storing the newly populated data
 class _PlantOrgState extends State<PlantOrg> {
   final TextEditingController _textEditingController1 = TextEditingController();
   final TextEditingController _textEditingController2 = TextEditingController();
   late String plantBufferDate = DateTime.now().toString();
 
-  List<Plant> plist = [];
-
-  // TODO: to sort by date
+  List<Plant> plist = [];  
 
   @override
   initState() {
@@ -64,6 +68,8 @@ class _PlantOrgState extends State<PlantOrg> {
     super.initState();
   }
 
+  ///[plantDataLoad] Loads the [Plant] Data to a [plist] which could be 
+  ///used throughout the program instance
   Future<void> plantDataLoad() async {
     List<Plant> inputPlantList = await PlantData().getplantData;
     _plantSorter(inputPlantList);
@@ -80,10 +86,12 @@ class _PlantOrgState extends State<PlantOrg> {
           padding: EdgeInsets.zero,
           children: [
             const DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.blue                
+              decoration: BoxDecoration(color: Colors.blue),
+              child: Text(
+                "Plant Settings",
+                style: TextStyle(fontSize: 40, fontFamily: "Noto Sans Korean"),
               ),
-              child: Text("Plant Settings",style: TextStyle(fontSize: 40,fontFamily: "Noto Sans Korean"),),),
+            ),
             ListTile(
               title: const Text("Download as Excel"),
               onTap: () {
@@ -107,7 +115,7 @@ class _PlantOrgState extends State<PlantOrg> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _displayDialog,
-        tooltip: "add item",
+        tooltip: "add plant",
         child: const Icon(Icons.add),
       ),
     );
@@ -191,6 +199,7 @@ class _PlantOrgState extends State<PlantOrg> {
         });
   }
 
+  ///Addding a new [Plant]
   _addPlantItem(String name, String details) {
     setState(() {
       plist.add(Plant(
@@ -203,6 +212,7 @@ class _PlantOrgState extends State<PlantOrg> {
     _textEditingController2.clear();
   }
 
+  ///Selecting a date for the [Plant] 
   _selectDate(BuildContext context, Plant plant) async {
     DateTime? newSelectedDate = await showDatePicker(
       context: context,
@@ -215,6 +225,7 @@ class _PlantOrgState extends State<PlantOrg> {
     });
   }
 
+  /// the dialog window caused by clicking on the FAB button
   _displayDialog() {
     return showDialog(
         context: context,
@@ -257,20 +268,23 @@ class _PlantOrgState extends State<PlantOrg> {
   }
 }
 
-//function _plantSorter
+///[_plantSorter] sort out plants in the order of date t serve the planting functionality
 _plantSorter(List<Plant> unsortedPlantList) {
   unsortedPlantList.sort((a, b) =>
       (DateTime.parse(a.plantdate)).compareTo(DateTime.parse(b.plantdate)));
   PlantData().writeJson(unsortedPlantList);
 }
 
-//function _dateTimeFormatter
+/// [_dateTimeFormatter] is used to deal with the format of the DateTime and String
 String _dateTimeFormatter(DateTime? datetime) {
   //the function returns a string Date
   final datetimeparsed = DateTime.parse(datetime.toString());
   return "${datetimeparsed.day}-${datetimeparsed.month}-${datetimeparsed.year}";
 }
 
+
+/// This is the UI of a single [Plant] TILE
+/// multiple of these instances are created with to form a long list of plants 
 class PlantOrgItem extends StatelessWidget {
   PlantOrgItem({
     Key? key,
@@ -278,43 +292,40 @@ class PlantOrgItem extends StatelessWidget {
     required this.onPlantOrgChange,
   }) : super(key: ObjectKey(plant));
 
-  // ignore: prefer_typing_uninitialized_variables
+  
   @override
   Widget build(BuildContext context) {
     return ListTile(
       onTap: () {
         onPlantOrgChange(plant);
       },
-      leading:  Container(
-        padding: const EdgeInsets.symmetric(vertical:8.0),
-        child: const Icon(Icons.yard,size: 50,),
-      ),
-      // title: Text(
-      //   plant.plantname,
-      //   style: _getTextStyle(plant.checked),
-      // ),
+      leading: Container(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: const Icon(
+          Icons.yard,
+          size: 50,
+        ),
+      ),      
       title: Row(
         mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Container(
             padding:
-                const EdgeInsets.symmetric(vertical: 8.0, horizontal: 25.0),            
+                const EdgeInsets.symmetric(vertical: 8.0, horizontal: 25.0),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(25.0),              
-              color: Colors.lightBlueAccent
-            ),
-            child: Text(plant.plantname, style: const TextStyle(fontSize: 30)),
-            // Text(_dateTimeFormatter(DateTime.parse(plant.plantdate))),
-            // Text(plant.plantdate),
+                borderRadius: BorderRadius.circular(25.0),
+                color: Colors.lightBlueAccent),
+            child: Text(plant.plantname, style: const TextStyle(fontSize: 30)),           
           ),
-          Container(            
-            padding:
-                const EdgeInsets.symmetric(vertical: 8.0),            
-            child:
-                // Text(plant.plantname, style: const TextStyle(fontSize: 30)),
-                Text(_dateTimeFormatter(DateTime.parse(plant.plantdate)),style: const TextStyle(fontSize: 25),textAlign: TextAlign.right,),
-            // Text(plant.plantdate),
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child:                
+                Text(
+              _dateTimeFormatter(DateTime.parse(plant.plantdate)),
+              style: const TextStyle(fontSize: 25),
+              textAlign: TextAlign.right,
+            ),            
           ),
         ],
       ),
